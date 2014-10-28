@@ -1,5 +1,11 @@
 package andriy.krupych.thegame;
 
+import java.io.IOException;
+
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.FixedStepEngine;
 import org.andengine.engine.camera.Camera;
@@ -14,6 +20,8 @@ public class MainActivity extends BaseGameActivity {
 
 	private Camera mCamera;
 	private Scene mScene;
+	private Sound mSound;
+	private Music mMusic;
 	
 	@Override
 	public Engine onCreateEngine(EngineOptions pEngineOptions) {
@@ -26,11 +34,20 @@ public class MainActivity extends BaseGameActivity {
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR,
 				new RatioResolutionPolicy(mCamera.getWidth(), mCamera.getHeight()), mCamera);
 		engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
+		engineOptions.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);
 		return engineOptions;
 	}
 	
 	@Override
 	public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) {
+		SoundFactory.setAssetBasePath("sfx/");
+		MusicFactory.setAssetBasePath("sfx/");
+		try {
+			mMusic = MusicFactory.createMusicFromAsset(getMusicManager(), this, "music.mp3");
+			mSound = SoundFactory.createSoundFromAsset(getSoundManager(), this, "sound.mp3");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
 	
@@ -43,5 +60,22 @@ public class MainActivity extends BaseGameActivity {
 	@Override
 	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) {
 		pOnPopulateSceneCallback.onPopulateSceneFinished();
+	}
+	
+	@Override
+	public synchronized void onResumeGame() {
+		if (mMusic != null && !mMusic.isPlaying()) {
+			mMusic.play();
+			mSound.play();
+		}
+		super.onResumeGame();
+	}
+	
+	@Override
+	public synchronized void onPauseGame() {
+		if (mMusic != null && mMusic.isPlaying()) {
+			mMusic.pause();
+		}
+		super.onPauseGame();
 	}
 }
