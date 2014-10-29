@@ -14,6 +14,8 @@ import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
@@ -24,14 +26,19 @@ import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
 
 public class MainActivity extends BaseGameActivity {
-
-	private Camera mCamera;
-	private Scene mScene;
+	
+	private static final int SCREEN_WIDTH = 480;
+	private static final int SCREEN_HEIGHT = 800;
+	private static final int SCREEN_CENTER_X = SCREEN_WIDTH / 2;
+	private static final int SCREEN_CENTER_Y = SCREEN_HEIGHT / 2;
+	
 	private Sound mSound;
 	private Music mMusic;
+	
 	private TextureRegion mOgreTextureRegion;
 	private TextureRegion mTrollTextureRegion;
 	private TextureRegion mGruntTextureRegion;
+	private TextureRegion mBackgroundTextureRegion;
 	
 	@Override
 	public Engine onCreateEngine(EngineOptions pEngineOptions) {
@@ -40,9 +47,9 @@ public class MainActivity extends BaseGameActivity {
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		mCamera = new Camera(0, 0, 800, 480);
-		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR,
-				new RatioResolutionPolicy(mCamera.getWidth(), mCamera.getHeight()), mCamera);
+		Camera camera = new Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED,
+				new RatioResolutionPolicy(camera.getWidth(), camera.getHeight()), camera);
 		engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
 		engineOptions.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);
 		return engineOptions;
@@ -50,18 +57,25 @@ public class MainActivity extends BaseGameActivity {
 	
 	@Override
 	public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) {
-		SoundFactory.setAssetBasePath("sfx/");
-		MusicFactory.setAssetBasePath("sfx/");
-		try {
-			mMusic = MusicFactory.createMusicFromAsset(getMusicManager(), this, "music.mp3");
-			mSound = SoundFactory.createSoundFromAsset(getSoundManager(), this, "sound.mp3");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		loadSounds();
+		loadGraphics();
+		loadBackground();
+		pOnCreateResourcesCallback.onCreateResourcesFinished();
+	}
+
+	private void loadBackground() {
+		BitmapTextureAtlas atlas = new BitmapTextureAtlas(
+				getEngine().getTextureManager(), 32, 32, TextureOptions.REPEATING_BILINEAR);
+		mBackgroundTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+				atlas, this, "grass.png", 0, 0);
+		mBackgroundTextureRegion.setTextureSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+		atlas.load();
+	}
+
+	private void loadGraphics() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		BuildableBitmapTextureAtlas atlas = new BuildableBitmapTextureAtlas(
 				getTextureManager(), 200, 200);
-//		BitmapTextureAtlas atlas = new BitmapTextureAtlas(getTextureManager(), 124, 46);
 		mOgreTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(
 				atlas, this, "ogre.png");
 		mTrollTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(
@@ -75,17 +89,30 @@ public class MainActivity extends BaseGameActivity {
 		} catch (TextureAtlasBuilderException e) {
 			e.printStackTrace();
 		}
-		pOnCreateResourcesCallback.onCreateResourcesFinished();
+	}
+
+	private void loadSounds() {
+		SoundFactory.setAssetBasePath("sfx/");
+		MusicFactory.setAssetBasePath("sfx/");
+		try {
+			mMusic = MusicFactory.createMusicFromAsset(getMusicManager(), this, "music.mp3");
+			mSound = SoundFactory.createSoundFromAsset(getSoundManager(), this, "sound.mp3");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
 	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) {
-		mScene = new Scene();
-		pOnCreateSceneCallback.onCreateSceneFinished(mScene);
+		Scene scene = new Scene();
+		pOnCreateSceneCallback.onCreateSceneFinished(scene);
 	}
 
 	@Override
 	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) {
+		Sprite sprite = new Sprite(SCREEN_CENTER_X, SCREEN_CENTER_Y, SCREEN_WIDTH, SCREEN_HEIGHT,
+				mBackgroundTextureRegion, getVertexBufferObjectManager());
+		pScene.attachChild(sprite);
 		pOnPopulateSceneCallback.onPopulateSceneFinished();
 	}
 	
