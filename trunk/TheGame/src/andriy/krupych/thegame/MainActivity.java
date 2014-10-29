@@ -110,7 +110,7 @@ public class MainActivity extends BaseGameActivity {
 
 	@Override
 	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) {
-		Sprite sprite = new Sprite(SCREEN_CENTER_X, SCREEN_CENTER_Y, SCREEN_WIDTH, SCREEN_HEIGHT,
+		Sprite sprite = new Sprite(SCREEN_CENTER_X, SCREEN_CENTER_Y,
 				mBackgroundTextureRegion, getVertexBufferObjectManager());
 		pScene.attachChild(sprite);
 		pOnPopulateSceneCallback.onPopulateSceneFinished();
