@@ -77,7 +77,7 @@ public class MainActivity extends BaseGameActivity {
 	private void loadGraphics() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		BuildableBitmapTextureAtlas atlas = new BuildableBitmapTextureAtlas(
-				getTextureManager(), 200, 200);
+				getTextureManager(), 200, 200, TextureOptions.BILINEAR);
 		mOgreTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(
 				atlas, this, "ogre.png");
 		mTrollTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(
@@ -115,15 +115,24 @@ public class MainActivity extends BaseGameActivity {
 		Sprite sprite = new Sprite(SCREEN_CENTER_X, SCREEN_CENTER_Y,
 				mBackgroundTextureRegion, getVertexBufferObjectManager());
 		pScene.attachChild(sprite);
+		Sprite grunt = new Sprite(100, SCREEN_HEIGHT - 100, mGruntTextureRegion,
+				getVertexBufferObjectManager());
+		pScene.attachChild(grunt);
+		Sprite troll = new Sprite(200, SCREEN_HEIGHT - 100, mTrollTextureRegion,
+				getVertexBufferObjectManager());
+		pScene.attachChild(troll);
+		Sprite ogre = new Sprite(300, SCREEN_HEIGHT - 100, mOgreTextureRegion,
+				getVertexBufferObjectManager());
+		pScene.attachChild(ogre);
 		float baseBuffer[] = {
-				60, 40, 0,
-				60, 0, 0,
-				-60, 0, 0,
-				-60, 40, 0
+				0, 0, 0,
+				0, 40, 0,
+				SCREEN_WIDTH, 40, 0,
+				SCREEN_WIDTH, 0, 0
 		};
-		Mesh meshBase = new Mesh(SCREEN_WIDTH - 70, 10, baseBuffer,
+		Mesh meshBase = new Mesh(0, 0, baseBuffer,
 				baseBuffer.length / 3, DrawMode.TRIANGLE_FAN, getVertexBufferObjectManager());
-		meshBase.setColor(0.5f, 0.5f, 0.5f);
+		meshBase.setColor(0.7f, 0.7f, 0.7f);
 		pScene.attachChild(meshBase);
 		pOnPopulateSceneCallback.onPopulateSceneFinished();
 	}
