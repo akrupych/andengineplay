@@ -13,6 +13,8 @@ import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.primitive.DrawMode;
+import org.andengine.entity.primitive.Mesh;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.TextureOptions;
@@ -113,6 +115,16 @@ public class MainActivity extends BaseGameActivity {
 		Sprite sprite = new Sprite(SCREEN_CENTER_X, SCREEN_CENTER_Y,
 				mBackgroundTextureRegion, getVertexBufferObjectManager());
 		pScene.attachChild(sprite);
+		float baseBuffer[] = {
+				60, 40, 0,
+				60, 0, 0,
+				-60, 0, 0,
+				-60, 40, 0
+		};
+		Mesh meshBase = new Mesh(SCREEN_WIDTH - 70, 10, baseBuffer,
+				baseBuffer.length / 3, DrawMode.TRIANGLE_FAN, getVertexBufferObjectManager());
+		meshBase.setColor(0.5f, 0.5f, 0.5f);
+		pScene.attachChild(meshBase);
 		pOnPopulateSceneCallback.onPopulateSceneFinished();
 	}
 	
